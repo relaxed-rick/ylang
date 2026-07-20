@@ -1,0 +1,521 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/ylang.svg" />
+    <title>ylang settings</title>
+  </head>
+  <body>
+    <main class="ylang-options">
+      <section id="settings-page">
+        <header>
+          <h1 id="ylang-title" class="ylang-brand">
+            <img class="ylang-brand-icon" src="/assets/icons/ylang.svg" alt="" aria-hidden="true" />
+            <span>ylang</span>
+          </h1>
+          <p>Local-first subtitle learning settings.</p>
+          <p id="ylang-easter-egg" class="ylang-easter-egg" hidden>
+            ylang - <strong>y</strong>et another <strong>lang</strong>uage learning tool
+          </p>
+        </header>
+
+        <section class="ylang-learning-entry" aria-labelledby="learning-entry-title">
+          <header>
+            <h2 id="learning-entry-title">Learned Items</h2>
+            <p>Manage saved words, phrases, sentences, and grammar notes.</p>
+          </header>
+          <div class="ylang-entry-actions">
+            <button id="learning-open" type="button">Learned Items</button>
+            <button id="attempts-open" type="button">Attempts</button>
+            <label class="checkbox-label ylang-inline-checkbox">
+              <input name="saveAttemptsEnabled" type="checkbox" />
+              Save attempts
+            </label>
+          </div>
+          <label class="ylang-compact-field">
+            Anki deck prefix
+            <input name="ankiDeckPrefix" type="text" autocomplete="off" placeholder="ylang" />
+            <span id="anki-deck-example" class="ylang-field-hint"></span>
+          </label>
+        </section>
+
+        <form id="settings-form">
+          <section class="ylang-settings-card">
+            <header>
+              <h2>Language Settings</h2>
+              <p>Pin languages for fast switching, then choose the active source and target.</p>
+            </header>
+
+            <label>
+              Favorite languages
+              <select id="favorite-language-picker"></select>
+            </label>
+            <div id="favorite-language-tags" class="ylang-tag-row"></div>
+
+            <div class="ylang-language-pair">
+              <label>
+                Source language
+                <select name="sourceLanguage"></select>
+              </label>
+              <div class="ylang-pair-arrow" aria-hidden="true">→</div>
+              <label>
+                Translation language
+                <select name="targetLanguage"></select>
+              </label>
+            </div>
+          </section>
+
+          <section class="ylang-settings-card">
+            <header>
+              <h2>UI Colors</h2>
+              <p>Accent colors for the in-video controls and text-reading bubble controls.</p>
+            </header>
+
+            <div class="ylang-two-column">
+              <label>
+                Video UI color
+                <input name="videoUiColor" type="color" />
+              </label>
+
+              <label>
+                Text UI color
+                <input name="textUiColor" type="color" />
+              </label>
+            </div>
+          </section>
+
+          <section class="ylang-settings-card">
+            <header>
+              <h2>Sources And LLM</h2>
+              <p>Choose the translation helper and configure API or local model access.</p>
+            </header>
+
+            <label>
+              Translation helper
+              <select name="provider">
+                <option value="deepl-web">DeepL web helper</option>
+                <option value="microsoft-translator">Microsoft Translator API</option>
+                <option value="local-llm">Local LLM</option>
+              </select>
+            </label>
+
+            <div class="ylang-provider-setup">
+              <button id="llm-configure" type="button">LLM setup</button>
+              <button id="prompt-settings-open" type="button">Prompt settings</button>
+              <span id="llm-status-summary">Not checked yet.</span>
+            </div>
+
+            <label class="checkbox-label">
+              <input name="localLlmEnabled" type="checkbox" />
+              Enable local LLM translation and grammar features
+            </label>
+
+            <div class="ylang-two-column ylang-key-region-row">
+              <label>
+                Microsoft Translator key
+                <input name="microsoftTranslatorKey" type="password" autocomplete="off" />
+              </label>
+
+              <label>
+                Region
+                <input name="microsoftTranslatorRegion" type="text" placeholder="westeurope" autocomplete="off" />
+              </label>
+            </div>
+
+            <div class="ylang-two-column">
+              <label class="checkbox-label">
+                <input name="deepLPinToTop" type="checkbox" />
+                Keep DeepL near top
+              </label>
+
+              <label class="checkbox-label">
+                <input name="deepLFocusOnUpdate" type="checkbox" />
+                Focus DeepL on update
+              </label>
+            </div>
+
+            <div class="ylang-deepl-placement-row">
+              <label>
+                DeepL position
+                <select name="deepLWindowPreset">
+                  <option value="custom">Custom</option>
+                  <option value="top-right-attached">Top right attached</option>
+                  <option value="top-left-attached">Top left attached</option>
+                  <option value="bottom-right-attached">Bottom right attached</option>
+                  <option value="bottom-left-attached">Bottom left attached</option>
+                  <option value="top-right-detached">Top right detached</option>
+                  <option value="top-left-detached">Top left detached</option>
+                  <option value="bottom-right-detached">Bottom right detached</option>
+                  <option value="bottom-left-detached">Bottom left detached</option>
+                </select>
+              </label>
+
+              <label>
+                X %
+                <input name="deepLWindowXPercent" type="number" min="0" max="100" step="5" />
+              </label>
+
+              <label>
+                Y %
+                <input name="deepLWindowYPercent" type="number" min="0" max="100" step="5" />
+              </label>
+
+              <label>
+                Screen
+                <select name="deepLScreenId">
+                  <option value="primary">Primary screen</option>
+                </select>
+              </label>
+            </div>
+          </section>
+
+          <section class="ylang-settings-card">
+            <header>
+              <h2>Subtitle</h2>
+              <p>Control the video overlay, auto-translation, and subtitle position.</p>
+            </header>
+
+            <label>
+              Subtitle mode
+              <select name="overlayMode">
+                <option value="augment-native">Keep native subtitle, add translation</option>
+                <option value="ylang-controlled">ylang controls both lines</option>
+              </select>
+            </label>
+
+            <div class="ylang-two-column">
+              <label>
+                Font scale
+                <input name="fontScale" type="number" min="0.7" max="1.6" step="0.1" />
+              </label>
+
+              <label>
+                Vertical offset
+                <input name="verticalOffset" type="number" min="-160" max="160" step="4" />
+              </label>
+            </div>
+
+            <label class="checkbox-label">
+              <input name="translateOnPause" type="checkbox" />
+              Translate current line when video pauses; skips imported episode-script translations
+            </label>
+
+            <label class="checkbox-label">
+              <input name="retranslateNonScriptOnPause" type="checkbox" />
+              Re-translate saved machine translations on pause
+            </label>
+
+            <div class="ylang-two-column">
+              <label class="ylang-range-label">
+                LLM result auto-close
+                <span><output id="llm-result-autoclose-value"></output></span>
+                <input name="llmResultAutoCloseSeconds" type="range" min="0" max="10" step="1" />
+              </label>
+
+              <label class="ylang-range-label">
+                Other result auto-close
+                <span><output id="other-result-autoclose-value"></output></span>
+                <input name="otherResultAutoCloseSeconds" type="range" min="0" max="10" step="1" />
+              </label>
+            </div>
+          </section>
+
+          <section class="ylang-settings-card">
+            <header>
+              <h2>Other</h2>
+              <p>Learning capture, phrase behavior, and keyboard shortcuts.</p>
+            </header>
+
+            <div class="ylang-two-column">
+              <label>
+                Max skipped words inside saved phrase
+                <input name="maxPhraseGapWords" type="number" min="0" max="8" step="1" />
+              </label>
+              <span></span>
+            </div>
+
+            <p class="ylang-field-hint">Screenshot and audio-snippet capture are disabled in this alpha because browser/player support has not been reliable.</p>
+
+            <div class="ylang-shortcut-grid">
+              <label>
+                Translate shortcut
+                <input name="translateShortcut" type="text" maxlength="5" autocomplete="off" data-shortcut-input="true" />
+              </label>
+              <label>
+                Learn shortcut
+                <input name="learnShortcut" type="text" maxlength="5" autocomplete="off" data-shortcut-input="true" />
+              </label>
+              <label>
+                Grammar shortcut
+                <input name="grammarShortcut" type="text" maxlength="5" autocomplete="off" data-shortcut-input="true" />
+              </label>
+              <label>
+                Select shortcut
+                <input name="selectShortcut" type="text" maxlength="5" autocomplete="off" data-shortcut-input="true" />
+              </label>
+              <label>
+                Clear words shortcut
+                <input name="clearSelectionShortcut" type="text" maxlength="5" autocomplete="off" data-shortcut-input="true" />
+              </label>
+            </div>
+          </section>
+
+          <p id="status" role="status"></p>
+        </form>
+
+        <section class="ylang-saved-transcripts" aria-labelledby="saved-transcripts-title">
+          <header>
+            <h2 id="saved-transcripts-title">Saved Transcripts</h2>
+            <p>Local episode transcripts saved from the in-video Episode panel.</p>
+          </header>
+          <div id="saved-transcripts-list"></div>
+          <p id="saved-transcripts-status" role="status"></p>
+        </section>
+      </section>
+
+      <section id="llm-setup-page" hidden>
+        <header class="ylang-page-header">
+          <div>
+            <h1>Local LLM Setup</h1>
+            <p>Guided setup for Ollama, LM Studio, llama.cpp server, or any OpenAI-compatible local endpoint.</p>
+          </div>
+          <button id="llm-back" type="button">Back</button>
+        </header>
+
+        <section class="ylang-setup-panel">
+          <h2>Connection</h2>
+          <label>
+            Local LLM base URL
+            <input name="localLlmBaseUrl" type="url" placeholder="http://127.0.0.1:11434/v1" autocomplete="off" />
+          </label>
+
+          <label>
+            Local LLM model
+            <input name="localLlmModel" type="text" placeholder="for example gemma4:e2b-it-q4_K_M or qwen3.5:4b" autocomplete="off" />
+          </label>
+
+          <label>
+            Local LLM API key
+            <input name="localLlmApiKey" type="password" placeholder="optional" autocomplete="off" />
+          </label>
+
+          <label>
+            Local LLM launch command
+            <input name="localLlmLaunchCommand" type="text" placeholder="optional; for copying, not browser execution" autocomplete="off" />
+          </label>
+
+        </section>
+
+        <section class="ylang-setup-panel">
+          <h2>Checklist</h2>
+          <p id="llm-setup-summary">Not checked yet.</p>
+          <div id="llm-checklist"></div>
+          <div class="ylang-button-row">
+            <button id="llm-setup-refresh" type="button">Run Checks</button>
+            <button id="llm-use-ollama" type="button">Use Ollama Defaults</button>
+          </div>
+        </section>
+
+        <section class="ylang-setup-panel">
+          <h2>Install And Run</h2>
+          <ol>
+            <li>Install a local model runner such as Ollama, LM Studio, or llama.cpp server.</li>
+            <li>Start its local server. Ollama usually listens at <code>http://127.0.0.1:11434</code>; LM Studio commonly exposes an OpenAI-compatible <code>/v1</code> server.</li>
+            <li>For Ollama, allow this extension origin with <code>OLLAMA_ORIGINS</code>. Pinning the exact extension is safer than allowing every browser extension. The Copy Launch Command button can include this automatically.</li>
+            <li>Download a small model in that app. For Ollama, copy a pull command below and run it in a terminal.</li>
+            <li>Put the exact model name and base URL into ylang settings, save, then run checks again.</li>
+          </ol>
+          <p>Ollama's FAQ says browser extension origins can be allowed with broad patterns like <code>chrome-extension://*</code>, or with specific extensions. Prefer the specific origin shown below.</p>
+          <p>Chrome extensions cannot directly launch local executables or scripts. The launch command field is stored so you can copy it now, and so a future native helper can use it.</p>
+
+          <div class="ylang-origin-grid">
+            <label>
+              This extension origin
+              <input id="llm-extension-origin" type="text" readonly />
+            </label>
+
+            <label>
+              Ollama origin variable
+              <input id="llm-origin-command" type="text" readonly />
+            </label>
+          </div>
+
+          <div class="ylang-note">
+            <strong>Chrome/Edge:</strong> open <code>chrome://extensions</code> or <code>edge://extensions</code>, enable Developer mode, find ylang, and copy its ID if this page cannot detect it.
+            Keep Ollama local with <code>OLLAMA_HOST=127.0.0.1:11434</code> and avoid <code>OLLAMA_HOST=0.0.0.0:11434</code> plus <code>OLLAMA_ORIGINS=*</code> unless you intentionally want network exposure.
+          </div>
+
+          <label>
+            Suggested small model
+            <select id="llm-model-suggestion">
+              <option value="gemma4:e2b-it-q4_K_M">Gemma 4 E2B, smallest: gemma4:e2b-it-q4_K_M</option>
+              <option value="gemma4:e4b-it-q4_K_M">Gemma 4 E4B, stronger: gemma4:e4b-it-q4_K_M</option>
+              <option value="qwen3.5:4b">Qwen 3.5 4B, strong small alternative: qwen3.5:4b</option>
+              <option value="qwen3.5:2b">Qwen 3.5 2B, lighter alternative: qwen3.5:2b</option>
+            </select>
+          </label>
+
+          <label>
+            Ollama pull command
+            <input id="llm-pull-command" type="text" readonly />
+          </label>
+
+          <label>
+            Launch command/path
+            <input id="llm-launch-command" type="text" placeholder="ollama serve" autocomplete="off" />
+          </label>
+
+          <label class="checkbox-label">
+            <input id="llm-launch-include-origin" type="checkbox" checked />
+            Copy launch command with <code>OLLAMA_HOST</code> and this extension's <code>OLLAMA_ORIGINS</code>
+          </label>
+
+          <div class="ylang-note">
+            With the checkbox enabled, Copy Launch Command uses PowerShell syntax:
+            <code>$env:OLLAMA_HOST='127.0.0.1:11434'; $env:OLLAMA_ORIGINS='chrome-extension://...'; ollama serve</code>.
+            In bash/zsh, use <code>OLLAMA_HOST=127.0.0.1:11434 OLLAMA_ORIGINS=chrome-extension://... ollama serve</code>.
+          </div>
+
+          <label>
+            Persistent Windows cmd.exe alternative
+            <textarea id="llm-setx-command" readonly rows="2"></textarea>
+          </label>
+
+          <div class="ylang-note">
+            <code>setx</code> stores the values for future terminals. After running it, close and reopen the terminal before starting Ollama.
+          </div>
+
+          <div class="ylang-button-row">
+            <button id="llm-copy-origin" type="button">Copy Ollama Origin</button>
+            <button id="llm-copy-pull" type="button">Copy Pull Command</button>
+            <button id="llm-copy-launch" type="button">Copy Launch Command</button>
+            <button id="llm-apply-model" type="button">Use This Model</button>
+          </div>
+          <p id="llm-setup-status" role="status"></p>
+        </section>
+
+        <section class="ylang-setup-panel">
+          <h2>LLM Debug</h2>
+          <label class="checkbox-label">
+            <input name="localLlmDebugEnabled" type="checkbox" />
+            Debug local LLM prompts and raw responses
+          </label>
+          <p>When debug is enabled, ylang stores the most recent local LLM prompt, raw response text, and any visible thinking field or <code>&lt;think&gt;</code> block.</p>
+          <textarea id="llm-debug-output" readonly rows="12" placeholder="No debug record yet."></textarea>
+          <div class="ylang-button-row">
+            <button id="llm-debug-refresh" type="button">Refresh Debug</button>
+            <button id="llm-debug-copy" type="button">Copy Debug</button>
+            <button id="llm-debug-clear" type="button">Clear Debug</button>
+          </div>
+        </section>
+      </section>
+
+      <section id="prompt-settings-page" hidden>
+        <header class="ylang-page-header">
+          <div>
+            <h1>Prompt Settings</h1>
+            <p>Edit local LLM prompt templates. Use placeholders like <code>{{text}}</code>, <code>{{targetLanguage}}</code>, and <code>{{markedSentence}}</code>.</p>
+          </div>
+          <button id="prompt-settings-back" type="button">Back</button>
+        </header>
+
+        <section class="ylang-setup-panel">
+          <div id="prompt-template-list"></div>
+          <div class="ylang-button-row">
+            <button id="prompt-settings-save" type="button">Save Prompts</button>
+            <button id="prompt-settings-reset" type="button">Reset Defaults</button>
+          </div>
+          <p id="prompt-settings-status" role="status"></p>
+        </section>
+      </section>
+
+      <section id="learning-page" hidden>
+        <header class="ylang-page-header">
+          <div>
+            <h1>Learned Items</h1>
+            <p>Saved subtitle learning items, local translations, and Anki export.</p>
+          </div>
+          <button id="learning-back" type="button">Back</button>
+        </header>
+
+        <section class="ylang-setup-panel">
+          <div class="ylang-learning-toolbar">
+            <div class="ylang-learning-toolbar-left">
+              <button id="learning-refresh" type="button">Refresh</button>
+              <button id="learning-complete-microsoft" type="button">Complete Empty With Microsoft</button>
+              <button id="learning-complete-llm" type="button">Complete Empty With LLM</button>
+              <button id="learning-export-backup" type="button">Export Backup JSON</button>
+              <button id="learning-import-backup" type="button">Import Backup JSON</button>
+              <input id="learning-import-backup-file" type="file" accept="application/json,.json" hidden />
+              <button id="learning-export-anki" type="button">Export All To Anki</button>
+            </div>
+            <div class="ylang-learning-toolbar-right">
+              <button id="learning-clear-translations" class="danger" type="button">Clear Selected Translations</button>
+              <button id="learning-delete-all" class="danger" type="button">Delete Selected</button>
+            </div>
+          </div>
+          <div class="ylang-learning-controls">
+            <label class="checkbox-label ylang-selection-toggle">
+              <input id="learning-select-all" type="checkbox" />
+              Select visible
+            </label>
+            <label>
+              Set
+              <select id="learning-language-filter"></select>
+            </label>
+            <label>
+              Sort
+              <select id="learning-sort">
+                <option value="updated-desc">Newest first</option>
+                <option value="updated-asc">Oldest first</option>
+                <option value="alpha">Alphabetical</option>
+                <option value="language">Set</option>
+              </select>
+            </label>
+          </div>
+          <div class="ylang-learning-set-controls">
+            <label>
+              Set name
+              <input id="learning-set-name" type="text" />
+            </label>
+            <button id="learning-rename-set" type="button">Rename Set</button>
+            <label>
+              New set
+              <input id="learning-new-set-name" type="text" placeholder="My Norwegian set" />
+            </label>
+            <button id="learning-create-set" type="button">Create Set</button>
+            <label>
+              Move selected to
+              <select id="learning-move-target"></select>
+            </label>
+            <button id="learning-move-selected" type="button">Move Selected</button>
+          </div>
+          <div id="learning-items-list"></div>
+          <p id="learning-items-status" role="status"></p>
+        </section>
+      </section>
+
+      <section id="attempts-page" hidden>
+        <header class="ylang-page-header">
+          <div>
+            <h1>Attempts</h1>
+            <p>Learner translation attempts and feedback, kept separate from learned items.</p>
+          </div>
+          <button id="attempts-back" type="button">Back</button>
+        </header>
+
+        <section class="ylang-setup-panel">
+          <div class="ylang-learning-toolbar">
+            <button id="attempts-refresh" type="button">Refresh</button>
+            <button id="attempts-delete-all" class="danger" type="button">Delete All Attempts</button>
+          </div>
+          <div id="attempts-list"></div>
+          <p id="attempts-status" role="status"></p>
+        </section>
+      </section>
+    </main>
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

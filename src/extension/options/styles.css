@@ -1,0 +1,643 @@
+:root {
+  color-scheme: dark;
+  font-family: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+  background: #07130d;
+  color: #fffbe9;
+  --paper: #fffbe9;
+  --bronze: #7c6041;
+  --gold: #f4c461;
+  --petal: #ffd84a;
+  --leaf: #76b82a;
+  --leaf-dark: #12391f;
+  --leaf-deep: #07130d;
+  --blue: #a5bedc;
+  --panel: rgba(255, 251, 233, 0.055);
+  --panel-strong: rgba(118, 184, 42, 0.13);
+  --line: rgba(244, 196, 97, 0.27);
+  --muted: rgba(255, 251, 233, 0.68);
+  --shadow: 0 18px 60px rgba(0, 0, 0, 0.34);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 12% 4%, rgba(255, 216, 74, 0.16), transparent 22rem),
+    radial-gradient(circle at 90% 12%, rgba(118, 184, 42, 0.22), transparent 28rem),
+    linear-gradient(135deg, #07130d 0%, #10271a 52%, #080d0a 100%);
+}
+
+.ylang-options {
+  width: min(920px, calc(100vw - 32px));
+  margin: 32px auto 56px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 38px;
+  line-height: 1;
+  letter-spacing: 0;
+}
+
+.ylang-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ylang-brand-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  transform: translateY(4px);
+}
+
+h2 {
+  margin: 0;
+  font-size: 18px;
+  line-height: 1.15;
+}
+
+p {
+  margin: 6px 0 0;
+  color: var(--muted);
+}
+
+.ylang-easter-egg {
+  color: var(--paper);
+}
+
+form,
+.ylang-settings-card,
+.ylang-page-header,
+.ylang-setup-panel,
+.ylang-saved-transcripts,
+.ylang-learning-entry {
+  display: grid;
+  gap: 16px;
+}
+
+form {
+  margin-top: 18px;
+}
+
+.ylang-settings-card,
+.ylang-setup-panel,
+.ylang-learning-entry,
+.ylang-saved-transcripts {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background:
+    linear-gradient(180deg, var(--panel-strong), var(--panel)),
+    linear-gradient(135deg, rgba(255, 216, 74, 0.035), rgba(18, 57, 31, 0.16));
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(16px);
+}
+
+.ylang-learning-entry {
+  margin-top: 28px;
+  border-color: rgba(255, 216, 74, 0.46);
+}
+
+.ylang-saved-transcripts {
+  margin-top: 24px;
+}
+
+.ylang-entry-actions,
+.ylang-provider-setup,
+.ylang-button-row,
+.ylang-tag-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.ylang-learning-toolbar {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ylang-learning-toolbar-left,
+.ylang-learning-toolbar-right {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.ylang-learning-toolbar-right {
+  justify-content: flex-end;
+  margin-left: auto;
+}
+
+.ylang-learning-controls {
+  display: grid;
+  grid-template-columns: minmax(130px, auto) minmax(180px, 1fr) minmax(160px, 220px);
+  gap: 12px;
+  align-items: end;
+}
+
+.ylang-learning-set-controls {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) auto minmax(180px, 1fr) auto minmax(180px, 1fr) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.ylang-selection-toggle {
+  align-self: stretch;
+  width: fit-content;
+}
+
+.ylang-inline-checkbox {
+  width: fit-content;
+  min-height: 42px;
+}
+
+.ylang-compact-field {
+  max-width: 360px;
+}
+
+.ylang-field-hint {
+  display: block;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.ylang-language-pair,
+.ylang-two-column,
+.ylang-deepl-placement-row,
+.ylang-origin-grid,
+.ylang-key-region-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: end;
+}
+
+.ylang-key-region-row {
+  grid-template-columns: minmax(0, 1fr) minmax(120px, 180px);
+}
+
+.ylang-deepl-placement-row {
+  grid-template-columns: minmax(190px, 1.2fr) minmax(74px, 0.35fr) minmax(74px, 0.35fr) minmax(170px, 1fr);
+}
+
+.ylang-language-pair {
+  grid-template-columns: minmax(0, 1fr) 40px minmax(0, 1fr);
+}
+
+.ylang-pair-arrow {
+  display: grid;
+  height: 42px;
+  place-items: center;
+  color: var(--petal);
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.ylang-shortcut-grid {
+  display: grid;
+  grid-template-columns: repeat(5, max-content);
+  gap: 12px;
+  align-items: end;
+}
+
+.ylang-shortcut-grid label {
+  gap: 5px;
+  width: max-content;
+  font-size: 12px;
+}
+
+.ylang-shortcut-grid input {
+  width: 72px;
+  min-height: 36px;
+  padding: 7px 9px;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 700;
+}
+
+ol {
+  margin: 0;
+  padding-left: 24px;
+  color: var(--paper);
+}
+
+li {
+  margin: 8px 0;
+}
+
+code {
+  border-radius: 5px;
+  padding: 1px 5px;
+  background: rgba(255, 251, 255, 0.08);
+  color: var(--gold);
+}
+
+label {
+  display: grid;
+  gap: 7px;
+  color: var(--paper);
+  font-weight: 700;
+}
+
+.checkbox-label {
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  min-height: 42px;
+  padding: 9px 11px;
+  border: 1px solid rgba(244, 196, 97, 0.2);
+  border-radius: 10px;
+  background: rgba(255, 251, 233, 0.035);
+}
+
+.checkbox-label input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--gold);
+}
+
+.ylang-range-label {
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
+
+.ylang-range-label input {
+  grid-column: 1 / -1;
+  accent-color: var(--gold);
+}
+
+.ylang-range-label span,
+.ylang-provider-setup span,
+.ylang-template-help,
+.ylang-learning-header span,
+.ylang-learning-row small,
+.ylang-transcript-meta span {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+select,
+input,
+textarea,
+button {
+  border: 1px solid rgba(165, 190, 220, 0.28);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: rgba(7, 19, 13, 0.88);
+  color: var(--paper);
+  font: inherit;
+}
+
+input[type="color"] {
+  width: 100%;
+  height: 44px;
+  padding: 4px;
+  cursor: pointer;
+}
+
+select:focus,
+input:focus,
+textarea:focus {
+  outline: 2px solid rgba(255, 216, 74, 0.44);
+  outline-offset: 2px;
+}
+
+button {
+  width: fit-content;
+  border-color: rgba(244, 196, 97, 0.42);
+  background: linear-gradient(180deg, rgba(255, 216, 74, 0.98), rgba(244, 196, 97, 0.92));
+  color: #102014;
+  cursor: pointer;
+  font-weight: 700;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.28);
+  transition: transform 120ms ease, filter 120ms ease, box-shadow 120ms ease;
+}
+
+button:hover {
+  filter: brightness(1.06);
+}
+
+button:active {
+  transform: scale(0.96);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.24);
+}
+
+button.danger {
+  border-color: rgba(255, 120, 120, 0.55);
+  background: linear-gradient(180deg, #b84b4b, #883232);
+  color: var(--paper);
+}
+
+.ylang-language-tag {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+  min-height: 34px;
+  padding: 7px 8px 7px 11px;
+  border: 1px solid rgba(244, 196, 97, 0.34);
+  border-radius: 999px;
+  border-color: rgba(244, 196, 97, 0.34);
+  background: rgba(118, 184, 42, 0.16);
+  color: var(--paper);
+  box-shadow: none;
+}
+
+.ylang-language-tag button {
+  display: inline-grid;
+  width: 18px;
+  height: 18px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(255, 251, 233, 0.12);
+  color: var(--paper);
+  box-shadow: none;
+  line-height: 1;
+}
+
+#llm-checklist,
+#prompt-template-list,
+.ylang-learning-table,
+.ylang-learning-media {
+  display: grid;
+  gap: 10px;
+}
+
+.ylang-check-row,
+.ylang-transcript-row,
+.ylang-learning-row {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(244, 196, 97, 0.18);
+  border-radius: 10px;
+  background: rgba(255, 251, 233, 0.035);
+}
+
+.ylang-check-row {
+  grid-template-columns: 40px 1fr;
+  align-items: start;
+}
+
+.ylang-check-row > span {
+  display: inline-grid;
+  min-width: 34px;
+  height: 24px;
+  place-items: center;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.ylang-check-pass > span {
+  background: #174f3a;
+  color: #d9ffee;
+}
+
+.ylang-check-warn > span {
+  background: #5a4a14;
+  color: #fff4bd;
+}
+
+.ylang-check-fail > span {
+  background: #5a2525;
+  color: #ffe0e0;
+}
+
+.ylang-transcript-row {
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+}
+
+.ylang-learning-row {
+  overflow: hidden;
+  padding: 0;
+  border-color: rgba(244, 196, 97, 0.22);
+}
+
+.ylang-learning-row[open] {
+  background: rgba(255, 251, 233, 0.055);
+}
+
+.ylang-learning-summary {
+  display: grid;
+  grid-template-columns: 14px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 13px 14px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.ylang-learning-row.is-selectable .ylang-learning-summary {
+  grid-template-columns: 22px 14px minmax(0, 1fr) auto;
+}
+
+.ylang-learning-summary::-webkit-details-marker {
+  display: none;
+}
+
+.ylang-learning-summary::before {
+  content: "";
+  grid-column: 1;
+  width: 9px;
+  height: 9px;
+  border-right: 2px solid var(--gold);
+  border-bottom: 2px solid var(--gold);
+  transform: rotate(-45deg);
+  transition: transform 140ms ease;
+}
+
+.ylang-learning-select {
+  grid-column: 1;
+  grid-row: 1;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--gold);
+}
+
+.ylang-learning-row.is-selectable .ylang-learning-summary::before {
+  grid-column: 2;
+}
+
+.ylang-learning-row[open] .ylang-learning-summary::before {
+  transform: rotate(45deg);
+}
+
+.ylang-learning-summary-text {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 5px;
+  min-width: 0;
+}
+
+.ylang-learning-title-line {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+}
+
+.ylang-learning-title-line strong,
+.ylang-learning-translation {
+  overflow-wrap: anywhere;
+}
+
+.ylang-learning-translation {
+  color: var(--paper);
+  font-size: 14px;
+}
+
+.ylang-learning-meta {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.ylang-learning-kind,
+.ylang-anki-badge {
+  display: inline-grid;
+  min-height: 24px;
+  place-items: center;
+  border-radius: 999px;
+  padding: 3px 9px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.ylang-learning-kind {
+  border: 1px solid rgba(244, 196, 97, 0.35);
+  background: rgba(118, 184, 42, 0.16);
+  color: var(--paper);
+  text-transform: capitalize;
+}
+
+.ylang-anki-badge {
+  white-space: nowrap;
+  border: 1px solid rgba(165, 190, 220, 0.26);
+  background: rgba(7, 19, 13, 0.55);
+  color: var(--muted);
+}
+
+.ylang-anki-badge.is-synced {
+  border-color: rgba(118, 184, 42, 0.55);
+  color: #d9ffee;
+}
+
+.ylang-anki-badge.is-unsynced {
+  border-color: rgba(255, 216, 74, 0.5);
+  color: var(--petal);
+}
+
+.ylang-learning-detail {
+  display: grid;
+  gap: 10px;
+  padding: 0 14px 14px;
+}
+
+.ylang-empty-state {
+  padding: 16px;
+  border: 1px dashed rgba(244, 196, 97, 0.28);
+  border-radius: 12px;
+  color: var(--muted);
+}
+
+.ylang-learning-header,
+.ylang-learning-media-row,
+.ylang-learning-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ylang-learning-actions-right {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.ylang-learning-row textarea,
+#prompt-template-list textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+#prompt-template-list textarea {
+  min-height: 120px;
+  font-family: "Cascadia Mono", Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+#status,
+#saved-transcripts-status,
+#learning-items-status,
+#attempts-status,
+#llm-setup-status,
+#prompt-settings-status {
+  min-height: 1.4em;
+  margin: 0;
+}
+
+@media (max-width: 740px) {
+  .ylang-page-header,
+  .ylang-transcript-row,
+  .ylang-language-pair,
+  .ylang-two-column,
+  .ylang-deepl-placement-row,
+  .ylang-origin-grid,
+  .ylang-key-region-row,
+  .ylang-learning-controls,
+  .ylang-learning-set-controls,
+  .ylang-learning-toolbar,
+  .ylang-shortcut-grid,
+  .ylang-learning-media-row,
+  .ylang-learning-actions {
+    grid-template-columns: 1fr;
+    display: grid;
+  }
+
+  .ylang-pair-arrow {
+    height: 20px;
+    transform: rotate(90deg);
+  }
+
+  .ylang-learning-actions-right {
+    justify-content: end;
+  }
+
+  .ylang-learning-summary {
+    grid-template-columns: 14px minmax(0, 1fr);
+  }
+
+  .ylang-learning-row.is-selectable .ylang-learning-summary {
+    grid-template-columns: 22px 14px minmax(0, 1fr);
+  }
+
+  .ylang-anki-badge {
+    width: fit-content;
+    margin-left: 26px;
+  }
+}

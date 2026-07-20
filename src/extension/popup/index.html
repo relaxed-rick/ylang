@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" type="image/svg+xml" href="/assets/icons/ylang.svg" />
+    <title>ylang</title>
+  </head>
+  <body>
+    <main class="ylang-popup">
+      <img class="ylang-popup-logo" src="/assets/icons/ylang.svg" alt="" aria-hidden="true" />
+      <h1>ylang</h1>
+      <p>Choose where ylang is active.</p>
+      <div class="language-mini">
+        <select id="popup-source-language" aria-label="Source language"></select>
+        <span aria-hidden="true">➜</span>
+        <select id="popup-target-language" aria-label="Target language"></select>
+      </div>
+      <div class="mode-toggles">
+        <button id="toggle-video" class="mode-toggle" type="button" aria-pressed="false">
+          <span>Video watching</span>
+          <strong>Off</strong>
+        </button>
+        <button id="toggle-reading" class="mode-toggle" type="button" aria-pressed="false">
+          <span>Text reading</span>
+          <strong>Off</strong>
+        </button>
+      </div>
+      <button id="open-learned-items" type="button">Learned Items</button>
+      <button id="open-options" type="button">Settings</button>
+    </main>
+
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

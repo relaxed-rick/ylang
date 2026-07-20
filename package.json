@@ -1,0 +1,20 @@
+{
+  "name": "ylang",
+  "version": "0.1.0",
+  "private": true,
+  "license": "SEE LICENSE IN LICENSE.md",
+  "type": "module",
+  "description": "Privacy-first language learning overlay for subtitles, video, and reading.",
+  "scripts": {
+    "build": "vite build",
+    "public:check": "node scripts/public-boundary-check.mjs",
+    "public:snapshot": "node scripts/prepare-public-snapshot.mjs",
+    "release:check": "node scripts/release-check.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/node": "^25.9.1",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5"
+  }
+}

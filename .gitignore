@@ -1,0 +1,32 @@
+node_modules/
+dist/
+.npm-cache/
+.DS_Store
+*.log
+npm-debug.log*
+
+# Private/local development state
+.agents/
+.codex/
+.env
+.env.*
+!.env.example
+
+# User data exports and local debug artifacts
+*.anki.apkg
+*.apkg
+*.webm
+*.wav
+*.mp3
+*.m4a
+*.ogg
+*.mp4
+*.vtt
+*.srt
+*.storage.json
+*storage-dump*.json
+*learning-backup*.json
+*ylang-learning-backup*.json
+*llm-debug*.json
+*transcript-export*.txt
+*translation-export*.txt

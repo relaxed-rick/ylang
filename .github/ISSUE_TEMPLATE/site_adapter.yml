@@ -1,0 +1,44 @@
+name: Site adapter request
+description: Request support for a video, audio, subtitle, or reading site.
+title: "[Adapter]: "
+labels: ["site-adapter"]
+body:
+  - type: markdown
+    attributes:
+      value: Do not upload copyrighted subtitles, video, audio, or full transcripts.
+  - type: input
+    id: site
+    attributes:
+      label: Site
+      description: Site name and a public sample URL if available.
+    validations:
+      required: true
+  - type: dropdown
+    id: content
+    attributes:
+      label: Content type
+      options:
+        - Video subtitles
+        - Audio transcript
+        - Article/text
+        - PDF/EPUB
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: subtitle_source
+    attributes:
+      label: What subtitles or text are visible?
+      description: Describe whether captions are selectable, rendered on screen, or available as a track. Short examples only.
+  - type: textarea
+    id: player_details
+    attributes:
+      label: Player details
+      description: Mention iframe, fullscreen behavior, DRM, native video controls, or anything unusual.
+  - type: checkboxes
+    id: permissions
+    attributes:
+      label: Permission awareness
+      options:
+        - label: I understand that some sites need a dedicated adapter and some DRM/cross-origin players may not be supportable.
+          required: true

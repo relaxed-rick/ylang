@@ -7,7 +7,9 @@ import {
 } from "./genericAdapter";
 import {
   getNetflixSource,
+  getNetflixSubtitleDebugStatus,
   isNetflixPage,
+  loadNetflixSubtitleTrack,
   observeNetflixSubtitles
 } from "./netflixAdapter";
 import {
@@ -15,6 +17,11 @@ import {
   loadNrkSubtitleTrack,
   observeNrkSubtitles
 } from "./nrkAdapter";
+import {
+  getOrfSource,
+  isOrfPage,
+  observeOrfSubtitles
+} from "./orfAdapter";
 import {
   getYoutubeSource,
   isYoutubePage,
@@ -39,8 +46,11 @@ const netflixAdapter: PageAdapter = {
   id: "netflix",
   canAttach: isNetflixPage,
   getSource: getNetflixSource,
+  loadSubtitleTrack: loadNetflixSubtitleTrack,
   observeSubtitles: observeNetflixSubtitles,
-  renderedFallbackLabel: "Using Netflix rendered subtitle fallback."
+  renderedFallbackLabel: "Using Netflix rendered subtitle fallback.",
+  trackLoadedLabel: (track) => `Loaded ${track.cues.length} Netflix timed subtitle cues.`,
+  getDebugStatus: getNetflixSubtitleDebugStatus
 };
 
 const youtubeAdapter: PageAdapter = {
@@ -49,6 +59,14 @@ const youtubeAdapter: PageAdapter = {
   getSource: getYoutubeSource,
   observeSubtitles: observeYoutubeSubtitles,
   renderedFallbackLabel: "Using YouTube rendered subtitle fallback."
+};
+
+const orfAdapter: PageAdapter = {
+  id: "orf",
+  canAttach: isOrfPage,
+  getSource: getOrfSource,
+  observeSubtitles: observeOrfSubtitles,
+  renderedFallbackLabel: "Using ORF rendered subtitle fallback."
 };
 
 const genericAdapter: PageAdapter = {
@@ -65,5 +83,6 @@ const ADAPTERS = [
   nrkAdapter,
   netflixAdapter,
   youtubeAdapter,
+  orfAdapter,
   genericAdapter
 ];

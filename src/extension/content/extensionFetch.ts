@@ -24,4 +24,3 @@ export async function extensionFetchText(url: string): Promise<string> {
 export async function extensionFetchJson<T>(url: string): Promise<T> {
   return JSON.parse(await extensionFetchText(url)) as T;
 }
-

@@ -185,7 +185,7 @@ export interface LearningItemIndexItem {
 }
 
 export interface SourceRef {
-  provider: "nrk" | "netflix" | "youtube" | "generic";
+  provider: "nrk" | "netflix" | "youtube" | "orf" | "generic";
   url: string;
   title?: string;
   programId?: string;

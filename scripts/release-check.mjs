@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join, posix } from "node:path";
 
-const distDir = "dist";
+const distDir = process.argv[2] ?? "dist";
 const manifestPath = join(distDir, "manifest.json");
 const failures = [];
 const warnings = [];
@@ -76,6 +76,9 @@ if (!manifest) {
   if (manifest.background?.service_worker) {
     assertDistFile(manifest.background.service_worker, "Background service worker");
   }
+  for (const backgroundScript of manifest.background?.scripts ?? []) {
+    assertDistFile(backgroundScript, "Background script");
+  }
 
   for (const script of manifest.content_scripts ?? []) {
     for (const jsPath of script.js ?? []) {
@@ -103,14 +106,14 @@ if (!manifest) {
 
 for (const privatePath of [".git", ".agents", ".codex", "node_modules"]) {
   if (existsSync(join(distDir, privatePath))) {
-    fail(`Private/dev artifact must not be packaged: dist/${privatePath}`);
+    fail(`Private/dev artifact must not be packaged: ${distDir}/${privatePath}`);
   }
 }
 
 const distFiles = listFiles(distDir);
 for (const file of distFiles) {
   if (/\.(map|ts|tsx)$/u.test(file)) {
-    warn(`Source-like file found in dist: ${file}`);
+    warn(`Source-like file found in ${distDir}: ${file}`);
   }
 }
 

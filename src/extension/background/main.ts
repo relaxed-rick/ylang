@@ -8,6 +8,7 @@ type DeepLRequest = {
   targetLanguage: string;
   pinToTop: boolean;
   focusOnUpdate: boolean;
+  returnFocusToSource?: boolean;
   windowPreset?: string;
   windowXPercent?: number;
   windowYPercent?: number;
@@ -16,6 +17,10 @@ type DeepLRequest = {
 
 type DeepLDisplaysRequest = {
   type: "ylang:deepl.displays";
+};
+
+type DeepLResumeSourcePlaybackRequest = {
+  type: "ylang:deepl.resumeSourcePlayback";
 };
 
 type FetchTextRequest = {
@@ -125,15 +130,18 @@ type DisplayInfo = {
   workArea?: { left: number; top: number; width: number; height: number };
 };
 
+type RuntimeSender = {
+  tab?: {
+    id?: number;
+    windowId?: number;
+  };
+};
+
 declare const chrome: {
   runtime: {
     onMessage: {
       addListener(
-        callback: (
-          message: unknown,
-          sender: unknown,
-          sendResponse: (response?: unknown) => void
-        ) => boolean | void
+        callback: (message: unknown, sender: RuntimeSender, sendResponse: (response?: unknown) => void) => boolean | void
       ): void;
     };
     onConnect: {
@@ -191,7 +199,9 @@ const LLM_DEBUG_LAST_KEY = "ylang:llm-debug:last";
 const DEEPL_POPUP_WIDTH = 460;
 const DEEPL_POPUP_HEIGHT = 678;
 
-chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+let deepLResumeSourceTab: RuntimeSender["tab"] | undefined;
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (isFetchTextRequest(message)) {
     void fetchText(message.url)
       .then((text) => sendResponse({ ok: true, text }))
@@ -204,6 +214,15 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (isDeepLDisplaysRequest(message)) {
     void getDeepLDisplays()
       .then((displays) => sendResponse({ ok: true, displays }))
+      .catch((error: unknown) => {
+        sendResponse({ ok: false, error: error instanceof Error ? error.message : String(error) });
+      });
+    return true;
+  }
+
+  if (isDeepLResumeSourcePlaybackRequest(message)) {
+    void resumeDeepLSourcePlayback()
+      .then(() => sendResponse({ ok: true }))
       .catch((error: unknown) => {
         sendResponse({ ok: false, error: error instanceof Error ? error.message : String(error) });
       });
@@ -241,7 +260,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     return false;
   }
 
-  void openOrUpdateDeepL(message)
+  void openOrUpdateDeepL(message, sender.tab)
     .then((translatedText) => sendResponse({ ok: true, translatedText }))
     .catch((error: unknown) => {
       sendResponse({ ok: false, error: error instanceof Error ? error.message : String(error) });
@@ -275,8 +294,14 @@ chrome.runtime.onConnect.addListener((port) => {
   });
 });
 
-async function openOrUpdateDeepL(request: DeepLRequest): Promise<string | undefined> {
+async function openOrUpdateDeepL(
+  request: DeepLRequest,
+  sourceTab: RuntimeSender["tab"] | undefined
+): Promise<string | undefined> {
   const reusableTab = await findReusableDeepLTab();
+  if (request.returnFocusToSource && sourceTab?.id && sourceTab.windowId) {
+    deepLResumeSourceTab = sourceTab;
+  }
 
   if (!reusableTab?.id) {
     const bounds = await resolveDeepLWindowBounds(request);
@@ -957,10 +982,23 @@ async function fetchText(url: string): Promise<string> {
 function isAllowedFetchUrl(url: string): boolean {
   try {
     const parsed = new URL(url);
-    return parsed.origin === "https://psapi.nrk.no" || parsed.origin === "https://undertekst.nrk.no";
+    return (
+      parsed.origin === "https://psapi.nrk.no" ||
+      parsed.origin === "https://undertekst.nrk.no" ||
+      isAllowedNetflixSubtitleUrl(parsed)
+    );
   } catch {
     return false;
   }
+}
+
+function isAllowedNetflixSubtitleUrl(url: URL): boolean {
+  return (
+    url.protocol === "https:" &&
+    (url.hostname === "nflxvideo.net" || url.hostname.endsWith(".nflxvideo.net")) &&
+    !url.pathname.includes("/range/") &&
+    (url.searchParams.has("o") || url.search.includes("o="))
+  );
 }
 
 function isFetchTextRequest(message: unknown): message is FetchTextRequest {
@@ -1030,6 +1068,29 @@ async function sendDeepLText(tabId: number, request: DeepLRequest): Promise<stri
   }
 }
 
+async function focusSourceTab(sourceTab: NonNullable<RuntimeSender["tab"]>): Promise<void> {
+  if (!sourceTab.id || !sourceTab.windowId) {
+    return;
+  }
+
+  try {
+    await chrome.tabs.update(sourceTab.id, { active: true });
+    await chrome.windows.update(sourceTab.windowId, { focused: true });
+  } catch {
+    // The source tab may have navigated or closed after the DeepL request started.
+  }
+}
+
+async function resumeDeepLSourcePlayback(): Promise<void> {
+  const sourceTab = deepLResumeSourceTab;
+  if (!sourceTab?.id || !sourceTab.windowId) {
+    throw new Error("No source video tab stored.");
+  }
+
+  await focusSourceTab(sourceTab);
+  await chrome.tabs.sendMessage(sourceTab.id, { type: "ylang:video.resumePlayback" });
+}
+
 async function getDeepLState(): Promise<DeepLState> {
   const stored = await chrome.storage.local.get(DEEPL_STATE_KEY);
   return (stored[DEEPL_STATE_KEY] as DeepLState | undefined) ?? {};
@@ -1053,6 +1114,14 @@ function isDeepLDisplaysRequest(message: unknown): message is DeepLDisplaysReque
     typeof message === "object" &&
     message !== null &&
     (message as DeepLDisplaysRequest).type === "ylang:deepl.displays"
+  );
+}
+
+function isDeepLResumeSourcePlaybackRequest(message: unknown): message is DeepLResumeSourcePlaybackRequest {
+  return (
+    typeof message === "object" &&
+    message !== null &&
+    (message as DeepLResumeSourcePlaybackRequest).type === "ylang:deepl.resumeSourcePlayback"
   );
 }
 

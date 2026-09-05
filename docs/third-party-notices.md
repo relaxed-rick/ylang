@@ -1,6 +1,6 @@
 # Third-Party Notices And Disclaimers
 
-ylang is an independent learning tool. It is not affiliated with NRK, Netflix, YouTube, DeepL, Microsoft, Anki, Ollama, LM Studio, or any subtitle, streaming, or translation provider.
+ylang is an independent learning tool. It is not affiliated with NRK, Netflix, YouTube, ORF, DeepL, Microsoft, Anki, Ollama, LM Studio, or any subtitle, streaming, or translation provider.
 
 ## Subtitles, Translations, And Media
 
@@ -26,4 +26,4 @@ Anki export uses local AnkiConnect at `http://127.0.0.1:8765`. Local LLM support
 
 ## Site Support
 
-Site adapters can break when websites change their player or subtitle DOM. NRK is currently the best-supported target; Netflix and YouTube support uses rendered subtitle/caption observation and should be treated as experimental.
+Site adapters can break when websites change their player or subtitle DOM. NRK is currently the best-supported target. Netflix support can try subtitle metadata/text exposed to the active page and otherwise falls back to rendered subtitle observation. YouTube and ORF ON support uses rendered subtitle/caption observation and should be treated as experimental.

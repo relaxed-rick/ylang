@@ -8,4 +8,5 @@ export interface PageAdapter {
   observeSubtitles(onCue: (cue: SubtitleCue | undefined) => void): () => void;
   renderedFallbackLabel?: string;
   trackLoadedLabel?(track: SubtitleTrack): string;
+  getDebugStatus?(): string | undefined;
 }

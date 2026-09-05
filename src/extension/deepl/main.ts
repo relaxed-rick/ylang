@@ -10,8 +10,13 @@ type SetTextResponse = {
   translatedText?: string;
 };
 
+type ResumeSourcePlaybackMessage = {
+  type: "ylang:deepl.resumeSourcePlayback";
+};
+
 declare const chrome: {
   runtime: {
+    sendMessage(message: ResumeSourcePlaybackMessage): Promise<unknown>;
     onMessage: {
       addListener(
         callback: (
@@ -27,6 +32,7 @@ declare const chrome: {
 let compactObserver: MutationObserver | undefined;
 
 resetCompactDeepLMode();
+document.addEventListener("keydown", handleDeepLKeyboardShortcut, true);
 
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (isPingMessage(message)) {
@@ -46,6 +52,24 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
 
   return true;
 });
+
+function handleDeepLKeyboardShortcut(event: KeyboardEvent): void {
+  if (event.key !== " " && event.code !== "Space") {
+    return;
+  }
+
+  if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) {
+    return;
+  }
+
+  if (document.documentElement.dataset.ylangDeeplManaged !== "true") {
+    return;
+  }
+
+  event.preventDefault();
+  event.stopPropagation();
+  void chrome.runtime.sendMessage({ type: "ylang:deepl.resumeSourcePlayback" });
+}
 
 async function setDeepLSourceText(text: string): Promise<SetTextResponse> {
   installCompactDeepLMode();

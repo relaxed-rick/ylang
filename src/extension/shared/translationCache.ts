@@ -20,4 +20,3 @@ export async function getTranslation(cacheKey: string): Promise<TranslationRecor
 export async function saveTranslation(record: TranslationRecord): Promise<void> {
   await browserApi.storage?.local?.set({ [record.cacheKey]: record });
 }
-

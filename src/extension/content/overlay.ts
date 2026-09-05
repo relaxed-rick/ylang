@@ -8,6 +8,18 @@ import type {
 
 const ROOT_ID = "ylang-overlay-root";
 const STYLE_ID = "ylang-overlay-style";
+const NATIVE_HIDDEN_CLASS = "ylang-native-subtitles-hidden";
+const NATIVE_SUBTITLE_SELECTORS = [
+  "tv-player-subtitles",
+  ".ytp-caption-window-container",
+  ".ytp-caption-segment",
+  ".bmpui-ui-subtitle-overlay",
+  ".bmpui-subtitle-vtt-cue-container",
+  ".bmpui-subtitle-vtt-cue",
+  "[data-uia='player-subtitle-text']",
+  ".player-timedtext",
+  ".player-timedtext-text-container"
+];
 
 export interface OverlayState {
   cue?: SubtitleCue;
@@ -20,6 +32,7 @@ export interface OverlayState {
   canUseLocalLlm: boolean;
   selectionTranslationHints: SelectionTranslationHint[];
   getEpisodeScriptText: () => string;
+  onFetchEpisodeTranscript: () => void;
   onCopyEpisodeScript: () => void;
   onSaveEpisodeTranscript: () => void;
   onDeleteSavedTranscript: () => void;
@@ -59,10 +72,13 @@ export function mountOverlay(state: OverlayState): void {
   if (!root) {
     root = document.createElement("div");
     root.id = ROOT_ID;
-    if (getComputedStyle(player).position === "static") {
-      player.style.position = "relative";
-    }
     player.appendChild(root);
+  } else if (root.parentElement !== player) {
+    player.appendChild(root);
+  }
+
+  if (getComputedStyle(player).position === "static") {
+    player.style.position = "relative";
   }
 
   root.style.setProperty("--ylang-font-scale", String(state.settings.fontScale));
@@ -137,6 +153,7 @@ export function mountOverlay(state: OverlayState): void {
     quickPanelOpen = !quickPanelOpen;
     mountOverlay(state);
   }));
+  root.querySelector("[data-action='fetch-episode']")?.addEventListener("click", state.onFetchEpisodeTranscript);
   root.querySelector("[data-action='copy-episode']")?.addEventListener("click", state.onCopyEpisodeScript);
   root.querySelector("[data-action='save-transcript']")?.addEventListener("click", state.onSaveEpisodeTranscript);
   root.querySelector("[data-action='delete-transcript']")?.addEventListener("click", state.onDeleteSavedTranscript);
@@ -180,10 +197,7 @@ export function mountOverlay(state: OverlayState): void {
 
 export function unmountOverlay(): void {
   document.getElementById(ROOT_ID)?.remove();
-  const nativeContainer = findNativeSubtitleContainer();
-  if (nativeContainer) {
-    nativeContainer.style.opacity = "";
-  }
+  clearNativeSubtitleVisibility();
 }
 
 export function clearOverlayWordSelection(): boolean {
@@ -268,6 +282,7 @@ function renderEpisodePanel(state: OverlayState): string {
         <button class="ylang-button ylang-icon-button" type="button" data-action="close-episode" title="Close episode panel" aria-label="Close episode panel">x</button>
       </div>
       <div class="ylang-episode-actions">
+        <button class="ylang-button" type="button" data-action="fetch-episode">Fetch Transcript</button>
         <button class="ylang-button" type="button" data-action="copy-episode">Copy Script</button>
         <button class="ylang-button" type="button" data-action="save-transcript">Save Transcript</button>
         <button class="ylang-button" type="button" data-action="delete-transcript">Delete Saved</button>
@@ -310,6 +325,7 @@ function renderQuickPanel(state: OverlayState): string {
         Transcript mode
       </label>
       <button class="ylang-button" type="button" data-action="open-episode-panel">Episode translation</button>
+      <button class="ylang-button" type="button" data-action="fetch-episode">Fetch transcript</button>
       <button class="ylang-button" type="button" data-action="open-full-settings">Full settings</button>
     </div>
   `;
@@ -456,12 +472,17 @@ function normalizeHintText(text: string): string {
 }
 
 function setNativeSubtitleVisibility(mode: OverlayMode): void {
-  const nativeContainer = findNativeSubtitleContainer();
-  if (!nativeContainer) {
-    return;
+  for (const nativeContainer of findNativeSubtitleContainers()) {
+    nativeContainer.style.opacity = "";
+    nativeContainer.classList.toggle(NATIVE_HIDDEN_CLASS, mode === "ylang-controlled");
   }
+}
 
-  nativeContainer.style.opacity = mode === "ylang-controlled" ? "0" : "";
+function clearNativeSubtitleVisibility(): void {
+  for (const nativeContainer of findNativeSubtitleContainers()) {
+    nativeContainer.style.opacity = "";
+    nativeContainer.classList.remove(NATIVE_HIDDEN_CLASS);
+  }
 }
 
 function findVideoPlayerHost(): HTMLElement | null {
@@ -471,17 +492,25 @@ function findVideoPlayerHost(): HTMLElement | null {
     document.querySelector<HTMLElement>(".watch-video") ??
     document.querySelector<HTMLElement>(".VideoContainer") ??
     document.querySelector<HTMLElement>(".NFPlayer") ??
+    findBitmovinPlayerHost() ??
     document.querySelector("video")?.parentElement ??
     document.body;
 }
 
-function findNativeSubtitleContainer(): HTMLElement | null {
-  return document.querySelector("tv-player-subtitles") ??
-    document.querySelector<HTMLElement>(".ytp-caption-window-container") ??
-    document.querySelector<HTMLElement>(".ytp-caption-segment") ??
-    document.querySelector<HTMLElement>("[data-uia='player-subtitle-text']") ??
-    document.querySelector<HTMLElement>(".player-timedtext") ??
-    document.querySelector<HTMLElement>(".player-timedtext-text-container");
+function findBitmovinPlayerHost(): HTMLElement | null {
+  const subtitleOverlay = document.querySelector<HTMLElement>(".bmpui-ui-subtitle-overlay");
+  const controlbar = document.querySelector<HTMLElement>(".bmpui-ui-controlbar, .bmpui-controlbar-bottom");
+  const subtitleHost = subtitleOverlay?.parentElement;
+  const controlbarHost = controlbar?.parentElement;
+  return subtitleHost && subtitleHost === controlbarHost
+    ? subtitleHost
+    : subtitleHost ?? controlbarHost ?? null;
+}
+
+function findNativeSubtitleContainers(): HTMLElement[] {
+  return [...new Set(
+    NATIVE_SUBTITLE_SELECTORS.flatMap((selector) => [...document.querySelectorAll<HTMLElement>(selector)])
+  )];
 }
 
 function normalizeCssColor(value: string): string {
@@ -503,6 +532,10 @@ function ensureStyle(): void {
       --ylang-ui-color: #f4c461;
       pointer-events: none;
       font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .${NATIVE_HIDDEN_CLASS} {
+      opacity: 0 !important;
     }
 
     #${ROOT_ID} .ylang-subtitle-shell {

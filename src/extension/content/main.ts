@@ -37,6 +37,15 @@ declare const chrome: {
     openOptionsPage(): void;
     sendMessage(message: unknown): Promise<unknown>;
     connect(connectInfo: { name: string }): RuntimePort;
+    onMessage: {
+      addListener(
+        callback: (
+          message: unknown,
+          sender: unknown,
+          sendResponse: (response?: unknown) => void
+        ) => boolean | void
+      ): void;
+    };
   };
   storage: {
     local: {
@@ -88,14 +97,29 @@ let lastSourceKey = "";
 let currentAdapter: PageAdapter;
 
 async function start(): Promise<void> {
+  ignoreExpectedExtensionInvalidationErrors();
   settings = await getContentSettings();
   currentAdapter = selectPageAdapter();
 
   document.addEventListener("keydown", handleKeyboardShortcut, true);
+  observeRuntimeMessages();
   observeSettingsChanges();
   observeVideoPause();
   observeSourceNavigationChanges();
   await startSubtitleSource();
+}
+
+function ignoreExpectedExtensionInvalidationErrors(): void {
+  window.addEventListener("unhandledrejection", (event) => {
+    if (isExtensionContextInvalidatedError(event.reason)) {
+      event.preventDefault();
+      unmountOverlay();
+    }
+  });
+}
+
+function isExtensionContextInvalidatedError(error: unknown): boolean {
+  return error instanceof Error && error.message.includes("Extension context invalidated");
 }
 
 async function startSubtitleSource(): Promise<void> {
@@ -118,6 +142,7 @@ async function startSubtitleSource(): Promise<void> {
       void handleCue(cue);
     });
     showToast(currentAdapter.trackLoadedLabel?.(track) ?? `Loaded ${track.cues.length} subtitle cues.`);
+    render();
     return;
   }
 
@@ -125,6 +150,7 @@ async function startSubtitleSource(): Promise<void> {
     void handleCue(cue);
   });
   showToast(currentAdapter.renderedFallbackLabel ?? "Using rendered subtitle fallback.");
+  render();
 }
 
 async function tryLoadTimedTrack(): Promise<SubtitleTrack | undefined> {
@@ -262,6 +288,9 @@ function render(): void {
     canUseLocalLlm: isLocalLlmReady(),
     selectionTranslationHints,
     getEpisodeScriptText: formatCurrentEpisodeScript,
+    onFetchEpisodeTranscript: () => {
+      runOverlayAction(fetchCurrentEpisodeTranscript);
+    },
     onCopyEpisodeScript: () => {
       runOverlayAction(copyCurrentEpisodeScript);
     },
@@ -426,15 +455,17 @@ async function translateAndCacheCueWithFallback(
 
 async function translateFullCueWithDeepL(
   cue: SubtitleCue,
-  options: { allowReplaceNonScript?: boolean } = {}
+  options: { allowReplaceNonScript?: boolean; returnFocusToSource?: boolean } = {}
 ): Promise<boolean> {
   if (shouldKeepCurrentTranslation(cue, options.allowReplaceNonScript)) {
-    await updateDeepLWindow(cue.normalizedText);
+    await updateDeepLWindow(cue.normalizedText, { returnFocusToSource: options.returnFocusToSource });
     showToast("Sent current subtitle to DeepL; saved translation kept.");
     return false;
   }
 
-  const translatedText = await updateDeepLWindow(cue.normalizedText);
+  const translatedText = await updateDeepLWindow(cue.normalizedText, {
+    returnFocusToSource: options.returnFocusToSource
+  });
   if (!translatedText) {
     showToast("Sent current subtitle to DeepL.");
     return false;
@@ -1018,7 +1049,10 @@ function observeSettingsChanges(): void {
   });
 }
 
-async function updateDeepLWindow(text: string): Promise<string | undefined> {
+async function updateDeepLWindow(
+  text: string,
+  options: { returnFocusToSource?: boolean } = {}
+): Promise<string | undefined> {
   const response = (await chrome.runtime.sendMessage({
     type: "ylang:deepl.translate",
     text,
@@ -1026,6 +1060,7 @@ async function updateDeepLWindow(text: string): Promise<string | undefined> {
     targetLanguage: settings.targetLanguage,
     pinToTop: settings.deepLPinToTop,
     focusOnUpdate: settings.deepLFocusOnUpdate,
+    returnFocusToSource: options.returnFocusToSource,
     windowPreset: settings.deepLWindowPreset,
     windowXPercent: settings.deepLWindowXPercent,
     windowYPercent: settings.deepLWindowYPercent,
@@ -1076,7 +1111,8 @@ async function translateOnPause(cue: SubtitleCue): Promise<void> {
   try {
     if (settings.provider === "deepl-web") {
       await translateFullCueWithDeepL(cue, {
-        allowReplaceNonScript: settings.retranslateNonScriptOnPause
+        allowReplaceNonScript: settings.retranslateNonScriptOnPause,
+        returnFocusToSource: true
       });
       return;
     }
@@ -1281,6 +1317,9 @@ function showToast(message: string): void {
 }
 
 void start().catch((error: unknown) => {
+  if (isExtensionContextInvalidatedError(error)) {
+    return;
+  }
   console.error("ylang failed to start timed subtitle mode; falling back to rendered subtitles.", error);
   startRenderedSubtitleFallback();
 });
@@ -1294,6 +1333,85 @@ function startRenderedSubtitleFallback(): void {
     void handleCue(cue);
   });
   showToast(currentAdapter.renderedFallbackLabel ?? "Using rendered subtitle fallback.");
+}
+
+async function fetchCurrentEpisodeTranscript(): Promise<void> {
+  currentAdapter = selectPageAdapter();
+  if (!currentAdapter.loadSubtitleTrack) {
+    episodeStatus = "This page does not expose a timed transcript loader yet.";
+    render();
+    return;
+  }
+
+  episodeStatus = "Fetching timed transcript...";
+  render();
+
+  const track = await tryLoadTimedTrack();
+  if (!track) {
+    const debugStatus = currentAdapter.getDebugStatus?.();
+    episodeStatus = currentAdapter.id === "netflix"
+      ? `No Netflix timed transcript found. ${debugStatus ?? "No Netflix debug status yet."}`
+      : "No timed transcript found yet.";
+    render();
+    return;
+  }
+
+  stopSubtitleSource?.();
+  currentTrack = track;
+  await refreshTranscriptSavedState();
+  stopSubtitleSource = observeTimedSubtitleTrack(track, (cue) => {
+    void handleCue(cue);
+  });
+  episodeStatus = `Loaded ${track.cues.length} timed transcript lines.`;
+  showToast(currentAdapter.trackLoadedLabel?.(track) ?? episodeStatus);
+  render();
+}
+
+function observeRuntimeMessages(): void {
+  chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+    if (!isResumePlaybackMessage(message)) {
+      return false;
+    }
+
+    void resumePrimaryVideo()
+      .then(() => sendResponse({ ok: true }))
+      .catch((error: unknown) => {
+        sendResponse({ ok: false, error: error instanceof Error ? error.message : String(error) });
+      });
+    return true;
+  });
+}
+
+async function resumePrimaryVideo(): Promise<void> {
+  const video = [...document.querySelectorAll<HTMLVideoElement>("video")]
+    .sort((a, b) => getVideoArea(b) - getVideoArea(a))[0];
+  if (!video) {
+    throw new Error("No video element found.");
+  }
+
+  if (video.paused) {
+    await video.play();
+  } else {
+    video.dispatchEvent(new KeyboardEvent("keydown", {
+      key: " ",
+      code: "Space",
+      bubbles: true,
+      composed: true
+    }));
+  }
+}
+
+function getVideoArea(video: HTMLVideoElement): number {
+  const rect = video.getBoundingClientRect();
+  return rect.width * rect.height;
+}
+
+function isResumePlaybackMessage(message: unknown): message is { type: "ylang:video.resumePlayback" } {
+  return (
+    typeof message === "object" &&
+    message !== null &&
+    (message as { type?: string }).type === "ylang:video.resumePlayback"
+  );
 }
 
 function delay(ms: number): Promise<void> {

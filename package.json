@@ -6,10 +6,14 @@
   "type": "module",
   "description": "Privacy-first language learning overlay for subtitles, video, and reading.",
   "scripts": {
-    "build": "vite build",
+    "build": "node scripts/build-extension-packages.mjs",
     "public:check": "node scripts/public-boundary-check.mjs",
     "public:snapshot": "node scripts/prepare-public-snapshot.mjs",
+    "public:sync": "node scripts/sync-public-repo.mjs",
     "release:check": "node scripts/release-check.mjs",
+    "release:check:chromium": "node scripts/release-check.mjs dist/chromium",
+    "release:check:firefox": "node scripts/release-check.mjs dist/firefox",
+    "release:check:all": "node scripts/release-check.mjs dist && node scripts/release-check.mjs dist/chromium && node scripts/release-check.mjs dist/firefox",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

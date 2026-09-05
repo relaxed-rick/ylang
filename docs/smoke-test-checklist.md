@@ -7,8 +7,11 @@ Run this before a public alpha snapshot.
 - `npm run typecheck` passes.
 - `npm run build` passes.
 - `npm run release:check` passes with only documented warnings.
+- `npm run release:check:chromium` passes with only documented warnings.
+- `npm run release:check:firefox` passes with only documented warnings.
 - `npm run public:check` passes with 0 warnings.
 - Load `dist/` as an unpacked extension in Chrome/Chromium.
+- Load `dist/firefox/manifest.json` as a temporary add-on in Firefox for Firefox-specific checks.
 
 ## Fresh Install
 

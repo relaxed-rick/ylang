@@ -52,6 +52,43 @@ npm run public:snapshot -- ../ylang-public-candidate
 
 The target directory must be empty. The script copies only the public include list and does not initialize git or publish anything.
 
+## Public Repo Sync Helper
+
+After the public repository exists, keep developing in the private workspace and sync through the cross-platform allowlisted snapshot script:
+
+```sh
+npm run public:sync -- "/path/to/ylang-public-candidate"
+```
+
+For a heavier verification pass that installs and builds the public candidate:
+
+```sh
+npm run public:sync -- "/path/to/ylang-public-candidate" --run-public-build-checks
+```
+
+The original PowerShell entry point remains available on Windows:
+
+```powershell
+.\scripts\sync-public-repo.ps1 -PublicRepoPath "C:\path\to\Ylang_public"
+```
+
+The sync helper:
+
+- refuses to run if the public repo has uncommitted changes,
+- runs private typecheck/build/release checks unless `-SkipPrivateChecks` is passed,
+- creates a temporary clean snapshot with `npm run public:snapshot`,
+- copies only the allowlisted public files and folders,
+- runs `npm run public:check` in the public repo,
+- stops before committing or pushing.
+
+For a heavier PowerShell verification pass, use:
+
+```powershell
+.\scripts\sync-public-repo.ps1 -PublicRepoPath "C:\path\to\Ylang_public" -RunPublicBuildChecks
+```
+
+Do not use whole-repo mirror commands such as raw `robocopy /MIR` from the private workspace into the public repo.
+
 ## Public Init Procedure
 
 1. Create a new empty directory outside the private workspace.

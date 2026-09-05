@@ -25,6 +25,8 @@
     "https://tv.nrk.no/*",
     "https://www.youtube.com/*",
     "https://www.netflix.com/*",
+    "https://*.nflxvideo.net/*",
+    "https://on.orf.at/*",
     "file:///*",
     "https://www.deepl.com/*",
     "https://api.cognitive.microsofttranslator.com/*",
@@ -39,13 +41,13 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://tv.nrk.no/*", "https://www.netflix.com/*", "https://www.youtube.com/watch*"],
+      "matches": ["https://tv.nrk.no/*", "https://www.netflix.com/*", "https://www.youtube.com/watch*", "https://on.orf.at/video/*"],
       "js": ["assets/content.js"],
-      "run_at": "document_idle"
+      "run_at": "document_start"
     },
     {
       "matches": ["http://*/*", "https://*/*", "file:///*"],
-      "exclude_matches": ["https://www.deepl.com/*", "https://deepl.com/*", "https://tv.nrk.no/*", "https://www.netflix.com/*", "https://www.youtube.com/watch*"],
+      "exclude_matches": ["https://www.deepl.com/*", "https://deepl.com/*", "https://tv.nrk.no/*", "https://www.netflix.com/*", "https://www.youtube.com/watch*", "https://on.orf.at/video/*"],
       "js": ["assets/reading.js"],
       "all_frames": true,
       "match_about_blank": true,
@@ -62,6 +64,10 @@
     {
       "resources": ["assets/icons/ylang.svg", "assets/icons/ylang.webp", "assets/icons/ylang-16.png", "assets/icons/ylang-32.png", "assets/icons/ylang-48.png", "assets/icons/ylang-128.png"],
       "matches": ["http://*/*", "https://*/*", "file:///*"]
+    },
+    {
+      "resources": ["assets/netflixPageHook.js"],
+      "matches": ["https://www.netflix.com/*"]
     }
   ]
 }
